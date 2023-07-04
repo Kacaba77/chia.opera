@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   run:
-    name: Run github-settings
+    name: Run tests
     runs-on: [k8s-internal]
     container: golang:1
     steps:
