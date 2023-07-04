@@ -1,0 +1,20 @@
+apiVersion: k8s.chia.net/v1
+kind: ChiaNode
+metadata:
+  labels:
+    app.kubernetes.io/name: chianode
+    app.kubernetes.io/instance: chianode-sample
+    app.kubernetes.io/part-of: chia-operator
+    app.kubernetes.io/created-by: chia-operator
+  name: chianode-sample
+spec:
+  replicas: 1
+  chia:
+    caSecretName: chiaca-secret
+    testnet: true
+    timezone: "America/Vancouver"
+  storage:
+    chiaRoot:
+      storageClass: "longhorn"
+      resourceRequest: "260Gi"
+

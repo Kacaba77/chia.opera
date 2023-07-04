@@ -1,0 +1,20 @@
+include:
+    - project: 'marstoaster/templates'
+      file: 
+        - '/kaniko/.function.kaniko-build.yml'
+    - template: 'Workflows/Branch-Pipelines.gitlab-ci.yml'
+
+stages:
+  - package
+
+chiaca-generator-build:
+  stage: package
+  extends: .kaniko-build
+  variables:
+    DOCKERFILE_PATH: "$CI_PROJECT_DIR/chiaca-generator/Dockerfile"
+    KANIKO_CONTEXT: "$CI_PROJECT_DIR/chiaca-generator"
+    KANIKO_TAG_SUBDIR: chiaca-generator
+
+chia-operator-build:
+  stage: package
+  extends: .kaniko-build

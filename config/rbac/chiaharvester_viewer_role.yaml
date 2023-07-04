@@ -1,0 +1,27 @@
+# permissions for end users to view chiaharvesters.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: chiaharvester-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: chia-operator
+    app.kubernetes.io/part-of: chia-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: chiaharvester-viewer-role
+rules:
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiaharvesters
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiaharvesters/status
+  verbs:
+  - get

@@ -1,0 +1,31 @@
+# permissions for end users to edit chiafarmers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: chiafarmer-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: chia-operator
+    app.kubernetes.io/part-of: chia-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: chiafarmer-editor-role
+rules:
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiafarmers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiafarmers/status
+  verbs:
+  - get

@@ -1,0 +1,15 @@
+apiVersion: k8s.chia.net/v1
+kind: ChiaHarvester
+metadata:
+  labels:
+    app.kubernetes.io/name: chiaharvester
+    app.kubernetes.io/instance: chiaharvester-sample
+    app.kubernetes.io/part-of: chia-operator
+    app.kubernetes.io/created-by: chia-operator
+  name: chiaharvester-sample
+spec:
+  chia:
+    caSecretName: chiaca-secret
+    testnet: true
+    timezone: "America/Vancouver"
+    farmerAddress: "chiafarmer-sample-farmer.chiaca.svc.cluster.local"

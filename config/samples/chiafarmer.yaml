@@ -1,0 +1,18 @@
+apiVersion: k8s.chia.net/v1
+kind: ChiaFarmer
+metadata:
+  labels:
+    app.kubernetes.io/name: chiafarmer
+    app.kubernetes.io/instance: chiafarmer-sample
+    app.kubernetes.io/part-of: chia-operator
+    app.kubernetes.io/created-by: chia-operator
+  name: chiafarmer-sample
+spec:
+  chia:
+    caSecretName: chiaca-secret
+    testnet: true
+    timezone: "America/Vancouver"
+    fullNodePeer: "chianode-sample-node.chiaca.svc.cluster.local:58444"
+    secretKey:
+      name: "chiakey-secret"
+      key: "key.txt"
