@@ -1,3 +1,7 @@
+/*
+Copyright 2023 Chia Network, Inc.
+*/
+
 package controller
 
 const (
