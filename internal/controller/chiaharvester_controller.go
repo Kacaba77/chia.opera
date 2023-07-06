@@ -206,7 +206,7 @@ func (r *ChiaHarvesterReconciler) reconcileDeployment(ctx context.Context, rec r
 
 	var chiaExporterImage = harvester.Spec.ChiaExporterConfig.Image
 	if chiaExporterImage == "" {
-		chiaExporterImage = "ghcr.io/chia-network/chia-exporter:latest"
+		chiaExporterImage = defaultChiaExporterImage
 	}
 
 	var deploy appsv1.Deployment = appsv1.Deployment{

@@ -306,7 +306,7 @@ func (r *ChiaNodeReconciler) reconcileStatefulset(ctx context.Context, rec recon
 
 	var chiaExporterImage = node.Spec.ChiaExporterConfig.Image
 	if chiaExporterImage == "" {
-		chiaExporterImage = "ghcr.io/chia-network/chia-exporter:latest"
+		chiaExporterImage = defaultChiaExporterImage
 	}
 
 	vols, volClaimTemplates := r.getChiaVolumesAndTemplates(ctx, node)

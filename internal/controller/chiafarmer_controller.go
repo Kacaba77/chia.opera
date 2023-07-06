@@ -205,7 +205,7 @@ func (r *ChiaFarmerReconciler) reconcileDeployment(ctx context.Context, rec reco
 
 	var chiaExporterImage = farmer.Spec.ChiaExporterConfig.Image
 	if chiaExporterImage == "" {
-		chiaExporterImage = "ghcr.io/chia-network/chia-exporter:latest"
+		chiaExporterImage = defaultChiaExporterImage
 	}
 
 	var deploy appsv1.Deployment = appsv1.Deployment{
