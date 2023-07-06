@@ -11,7 +11,7 @@ import (
 // ChiaCASpec defines the desired state of ChiaCA
 type ChiaCASpec struct {
 	// Image defines the CA generator image to run
-	// +kubebuilder:default="registry.gitlab.com/bbhome/helm/chia-operator/chiaca-generator:latest"
+	// +kubebuilder:default="ghcr.io/chia-network/chia-operator/ca-gen:latest"
 	Image string `json:"image,omitempty"`
 
 	// ImagePullSecret defines an ImagePullSecret for the CA generator image
