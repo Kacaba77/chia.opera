@@ -131,7 +131,7 @@ func (r *ChiaNodeReconciler) reconcileBaseService(ctx context.Context, rec recon
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-node", node.Name),
 			Namespace:       node.Namespace,
-			Labels:          getCommonLabels(ctx, "chianode", node.Name, node.Spec.AdditionalMetadata.Labels),
+			Labels:          r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 			Annotations:     node.Spec.AdditionalMetadata.Annotations,
 			OwnerReferences: r.getOwnerReference(ctx, node),
 		},
@@ -157,7 +157,7 @@ func (r *ChiaNodeReconciler) reconcileBaseService(ctx context.Context, rec recon
 					Name:       "rpc",
 				},
 			},
-			Selector: getCommonLabels(ctx, "chianode", node.Name, node.Spec.AdditionalMetadata.Labels),
+			Selector: r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 		},
 	}
 
@@ -171,7 +171,7 @@ func (r *ChiaNodeReconciler) reconcileInternalService(ctx context.Context, rec r
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-node-internal", node.Name),
 			Namespace:       node.Namespace,
-			Labels:          getCommonLabels(ctx, "chianode", node.Name, node.Spec.AdditionalMetadata.Labels),
+			Labels:          r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 			Annotations:     node.Spec.AdditionalMetadata.Annotations,
 			OwnerReferences: r.getOwnerReference(ctx, node),
 		},
@@ -198,7 +198,7 @@ func (r *ChiaNodeReconciler) reconcileInternalService(ctx context.Context, rec r
 					Name:       "rpc",
 				},
 			},
-			Selector: getCommonLabels(ctx, "chianode", node.Name, node.Spec.AdditionalMetadata.Labels),
+			Selector: r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 		},
 	}
 
@@ -211,7 +211,7 @@ func (r *ChiaNodeReconciler) reconcileHeadlessService(ctx context.Context, rec r
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-node-headless", node.Name),
 			Namespace:       node.Namespace,
-			Labels:          getCommonLabels(ctx, "chianode", node.Name, node.Spec.AdditionalMetadata.Labels),
+			Labels:          r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 			Annotations:     node.Spec.AdditionalMetadata.Annotations,
 			OwnerReferences: r.getOwnerReference(ctx, node),
 		},
@@ -238,7 +238,7 @@ func (r *ChiaNodeReconciler) reconcileHeadlessService(ctx context.Context, rec r
 					Name:       "rpc",
 				},
 			},
-			Selector: getCommonLabels(ctx, "chianode", node.Name, node.Spec.AdditionalMetadata.Labels),
+			Selector: r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 		},
 	}
 
@@ -251,7 +251,7 @@ func (r *ChiaNodeReconciler) reconcileChiaExporterService(ctx context.Context, r
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-node-metrics", node.Name),
 			Namespace:       node.Namespace,
-			Labels:          getCommonLabels(ctx, "chianode", node.Name, node.Spec.AdditionalMetadata.Labels, node.Spec.ChiaExporterConfig.ServiceLabels),
+			Labels:          r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels, node.Spec.ChiaExporterConfig.ServiceLabels),
 			Annotations:     node.Spec.AdditionalMetadata.Annotations,
 			OwnerReferences: r.getOwnerReference(ctx, node),
 		},
@@ -265,7 +265,7 @@ func (r *ChiaNodeReconciler) reconcileChiaExporterService(ctx context.Context, r
 					Name:       "metrics",
 				},
 			},
-			Selector: getCommonLabels(ctx, "chianode", node.Name, node.Spec.AdditionalMetadata.Labels),
+			Selector: r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 		},
 	}
 
@@ -315,19 +315,19 @@ func (r *ChiaNodeReconciler) reconcileStatefulset(ctx context.Context, rec recon
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-node", node.Name),
 			Namespace:       node.Namespace,
-			Labels:          getCommonLabels(ctx, "chianode", node.Name, node.Spec.AdditionalMetadata.Labels),
+			Labels:          r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 			Annotations:     node.Spec.AdditionalMetadata.Annotations,
 			OwnerReferences: r.getOwnerReference(ctx, node),
 		},
 		Spec: appsv1.StatefulSetSpec{
 			Replicas: node.Spec.Replicas,
 			Selector: &metav1.LabelSelector{
-				MatchLabels: getCommonLabels(ctx, "chianode", node.Name),
+				MatchLabels: r.getCommonLabels(ctx, node),
 			},
 			ServiceName: fmt.Sprintf("%s-headless", node.Name),
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels:      getCommonLabels(ctx, "chianode", node.Name, node.Spec.AdditionalMetadata.Labels),
+					Labels:      r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 					Annotations: node.Spec.AdditionalMetadata.Annotations,
 				},
 				Spec: corev1.PodSpec{
@@ -555,6 +555,20 @@ func (r *ChiaNodeReconciler) getChiaNodeEnv(ctx context.Context, node k8schianet
 	}
 
 	return env
+}
+
+// getCommonLabels gives some common labels for ChiaNode related objects
+func (r *ChiaNodeReconciler) getCommonLabels(ctx context.Context, node k8schianetv1.ChiaNode, additionalLabels ...map[string]string) map[string]string {
+	var labels = make(map[string]string)
+	for _, addition := range additionalLabels {
+		for k, v := range addition {
+			labels[k] = v
+		}
+	}
+	labels["app.kubernetes.io/instance"] = node.Name
+	labels["chianode-owner"] = node.Name
+	labels = getCommonLabels(ctx, labels)
+	return labels
 }
 
 // getOwnerReference gives the common owner reference spec for ChiaNode related objects

@@ -111,7 +111,7 @@ func (r *ChiaFarmerReconciler) reconcileBaseService(ctx context.Context, rec rec
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-farmer", farmer.Name),
 			Namespace:       farmer.Namespace,
-			Labels:          getCommonLabels(ctx, "chiafarmer", farmer.Name, farmer.Spec.AdditionalMetadata.Labels),
+			Labels:          r.getCommonLabels(ctx, farmer, farmer.Spec.AdditionalMetadata.Labels),
 			Annotations:     farmer.Spec.AdditionalMetadata.Annotations,
 			OwnerReferences: r.getOwnerReference(ctx, farmer),
 		},
@@ -137,7 +137,7 @@ func (r *ChiaFarmerReconciler) reconcileBaseService(ctx context.Context, rec rec
 					Name:       "rpc",
 				},
 			},
-			Selector: getCommonLabels(ctx, "chiafarmer", farmer.Name, farmer.Spec.AdditionalMetadata.Labels),
+			Selector: r.getCommonLabels(ctx, farmer, farmer.Spec.AdditionalMetadata.Labels),
 		},
 	}
 
@@ -150,7 +150,7 @@ func (r *ChiaFarmerReconciler) reconcileChiaExporterService(ctx context.Context,
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-farmer-metrics", farmer.Name),
 			Namespace:       farmer.Namespace,
-			Labels:          getCommonLabels(ctx, "chiafarmer", farmer.Name, farmer.Spec.AdditionalMetadata.Labels, farmer.Spec.ChiaExporterConfig.ServiceLabels),
+			Labels:          r.getCommonLabels(ctx, farmer, farmer.Spec.AdditionalMetadata.Labels, farmer.Spec.ChiaExporterConfig.ServiceLabels),
 			Annotations:     farmer.Spec.AdditionalMetadata.Annotations,
 			OwnerReferences: r.getOwnerReference(ctx, farmer),
 		},
@@ -164,7 +164,7 @@ func (r *ChiaFarmerReconciler) reconcileChiaExporterService(ctx context.Context,
 					Name:       "metrics",
 				},
 			},
-			Selector: getCommonLabels(ctx, "chiafarmer", farmer.Name, farmer.Spec.AdditionalMetadata.Labels),
+			Selector: r.getCommonLabels(ctx, farmer, farmer.Spec.AdditionalMetadata.Labels),
 		},
 	}
 
@@ -212,17 +212,17 @@ func (r *ChiaFarmerReconciler) reconcileDeployment(ctx context.Context, rec reco
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-farmer", farmer.Name),
 			Namespace:       farmer.Namespace,
-			Labels:          getCommonLabels(ctx, "chiafarmer", farmer.Name, farmer.Spec.AdditionalMetadata.Labels),
+			Labels:          r.getCommonLabels(ctx, farmer, farmer.Spec.AdditionalMetadata.Labels),
 			Annotations:     farmer.Spec.AdditionalMetadata.Annotations,
 			OwnerReferences: r.getOwnerReference(ctx, farmer),
 		},
 		Spec: appsv1.DeploymentSpec{
 			Selector: &metav1.LabelSelector{
-				MatchLabels: getCommonLabels(ctx, "chiafarmer", farmer.Name),
+				MatchLabels: r.getCommonLabels(ctx, farmer),
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels:      getCommonLabels(ctx, "chiafarmer", farmer.Name, farmer.Spec.AdditionalMetadata.Labels),
+					Labels:      r.getCommonLabels(ctx, farmer, farmer.Spec.AdditionalMetadata.Labels),
 					Annotations: farmer.Spec.AdditionalMetadata.Annotations,
 				},
 				Spec: corev1.PodSpec{
@@ -452,6 +452,20 @@ func (r *ChiaFarmerReconciler) getChiaEnv(ctx context.Context, farmer k8schianet
 	})
 
 	return env
+}
+
+// getCommonLabels gives some common labels for ChiaFarmer related objects
+func (r *ChiaFarmerReconciler) getCommonLabels(ctx context.Context, farmer k8schianetv1.ChiaFarmer, additionalLabels ...map[string]string) map[string]string {
+	var labels = make(map[string]string)
+	for _, addition := range additionalLabels {
+		for k, v := range addition {
+			labels[k] = v
+		}
+	}
+	labels["app.kubernetes.io/instance"] = farmer.Name
+	labels["chiafarmer-owner"] = farmer.Name
+	labels = getCommonLabels(ctx, labels)
+	return labels
 }
 
 // getOwnerReference gives the common owner reference spec for ChiaFarmer related objects

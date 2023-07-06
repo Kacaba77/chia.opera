@@ -112,7 +112,7 @@ func (r *ChiaHarvesterReconciler) reconcileBaseService(ctx context.Context, rec 
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-harvester", harvester.Name),
 			Namespace:       harvester.Namespace,
-			Labels:          getCommonLabels(ctx, "chiaharvester", harvester.Name, harvester.Spec.AdditionalMetadata.Labels),
+			Labels:          r.getCommonLabels(ctx, harvester, harvester.Spec.AdditionalMetadata.Labels),
 			Annotations:     harvester.Spec.AdditionalMetadata.Annotations,
 			OwnerReferences: r.getOwnerReference(ctx, harvester),
 		},
@@ -138,7 +138,7 @@ func (r *ChiaHarvesterReconciler) reconcileBaseService(ctx context.Context, rec 
 					Name:       "rpc",
 				},
 			},
-			Selector: getCommonLabels(ctx, "chiaharvester", harvester.Name, harvester.Spec.AdditionalMetadata.Labels),
+			Selector: r.getCommonLabels(ctx, harvester, harvester.Spec.AdditionalMetadata.Labels),
 		},
 	}
 
@@ -151,7 +151,7 @@ func (r *ChiaHarvesterReconciler) reconcileChiaExporterService(ctx context.Conte
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-harvester-metrics", harvester.Name),
 			Namespace:       harvester.Namespace,
-			Labels:          getCommonLabels(ctx, "chiaharvester", harvester.Name, harvester.Spec.AdditionalMetadata.Labels, harvester.Spec.ChiaExporterConfig.ServiceLabels),
+			Labels:          r.getCommonLabels(ctx, harvester, harvester.Spec.AdditionalMetadata.Labels, harvester.Spec.ChiaExporterConfig.ServiceLabels),
 			Annotations:     harvester.Spec.AdditionalMetadata.Annotations,
 			OwnerReferences: r.getOwnerReference(ctx, harvester),
 		},
@@ -165,7 +165,7 @@ func (r *ChiaHarvesterReconciler) reconcileChiaExporterService(ctx context.Conte
 					Name:       "metrics",
 				},
 			},
-			Selector: getCommonLabels(ctx, "chiaharvester", harvester.Name, harvester.Spec.AdditionalMetadata.Labels),
+			Selector: r.getCommonLabels(ctx, harvester, harvester.Spec.AdditionalMetadata.Labels),
 		},
 	}
 
@@ -213,17 +213,17 @@ func (r *ChiaHarvesterReconciler) reconcileDeployment(ctx context.Context, rec r
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-harvester", harvester.Name),
 			Namespace:       harvester.Namespace,
-			Labels:          getCommonLabels(ctx, "chiaharvester", harvester.Name, harvester.Spec.AdditionalMetadata.Labels),
+			Labels:          r.getCommonLabels(ctx, harvester, harvester.Spec.AdditionalMetadata.Labels),
 			Annotations:     harvester.Spec.AdditionalMetadata.Annotations,
 			OwnerReferences: r.getOwnerReference(ctx, harvester),
 		},
 		Spec: appsv1.DeploymentSpec{
 			Selector: &metav1.LabelSelector{
-				MatchLabels: getCommonLabels(ctx, "chiaharvester", harvester.Name),
+				MatchLabels: r.getCommonLabels(ctx, harvester),
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels:      getCommonLabels(ctx, "chiaharvester", harvester.Name, harvester.Spec.AdditionalMetadata.Labels),
+					Labels:      r.getCommonLabels(ctx, harvester, harvester.Spec.AdditionalMetadata.Labels),
 					Annotations: harvester.Spec.AdditionalMetadata.Annotations,
 				},
 				Spec: corev1.PodSpec{
@@ -522,6 +522,20 @@ func (r *ChiaHarvesterReconciler) getChiaEnv(ctx context.Context, harvester k8sc
 	})
 
 	return env
+}
+
+// getCommonLabels gives some common labels for ChiaHarvester related objects
+func (r *ChiaHarvesterReconciler) getCommonLabels(ctx context.Context, harvester k8schianetv1.ChiaHarvester, additionalLabels ...map[string]string) map[string]string {
+	var labels = make(map[string]string)
+	for _, addition := range additionalLabels {
+		for k, v := range addition {
+			labels[k] = v
+		}
+	}
+	labels["app.kubernetes.io/instance"] = harvester.Name
+	labels["ChiaHarvester-owner"] = harvester.Name
+	labels = getCommonLabels(ctx, labels)
+	return labels
 }
 
 // getOwnerReference gives the common owner reference spec for ChiaHarvester related objects

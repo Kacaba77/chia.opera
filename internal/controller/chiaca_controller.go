@@ -144,7 +144,7 @@ func (r *ChiaCAReconciler) reconcileCAJob(ctx context.Context, rec reconciler.Re
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            ca.Name,
 			Namespace:       ca.Namespace,
-			Labels:          getCommonLabels(ctx, "chiaca", ca.Name),
+			Labels:          r.getChiaCACommonLabels(ctx, ca),
 			OwnerReferences: r.getChiaCAOwnerReference(ctx, ca),
 		},
 		Spec: batchv1.JobSpec{
@@ -189,7 +189,7 @@ func (r *ChiaCAReconciler) reconcileCAServiceAccount(ctx context.Context, rec re
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s%s", ca.Name, caGeneratorNameSuffix),
 			Namespace:       ca.Namespace,
-			Labels:          getCommonLabels(ctx, "chiaca", ca.Name),
+			Labels:          r.getChiaCACommonLabels(ctx, ca),
 			OwnerReferences: r.getChiaCAOwnerReference(ctx, ca),
 		},
 	}
@@ -203,7 +203,7 @@ func (r *ChiaCAReconciler) reconcileCARole(ctx context.Context, rec reconciler.R
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s%s", ca.Name, caGeneratorNameSuffix),
 			Namespace:       ca.Namespace,
-			Labels:          getCommonLabels(ctx, "chiaca", ca.Name),
+			Labels:          r.getChiaCACommonLabels(ctx, ca),
 			OwnerReferences: r.getChiaCAOwnerReference(ctx, ca),
 		},
 		Rules: []rbacv1.PolicyRule{
@@ -230,7 +230,7 @@ func (r *ChiaCAReconciler) reconcileCARoleBinding(ctx context.Context, rec recon
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s%s", ca.Name, caGeneratorNameSuffix),
 			Namespace:       ca.Namespace,
-			Labels:          getCommonLabels(ctx, "chiaca", ca.Name),
+			Labels:          r.getChiaCACommonLabels(ctx, ca),
 			OwnerReferences: r.getChiaCAOwnerReference(ctx, ca),
 		},
 		Subjects: []rbacv1.Subject{
@@ -264,6 +264,15 @@ func (r *ChiaCAReconciler) getCASecret(ctx context.Context, ca k8schianetv1.Chia
 	}
 
 	return caSecret, false, nil
+}
+
+// getChiaCACommonLabels gives some common labels for ChiaCA related objects
+func (r *ChiaCAReconciler) getChiaCACommonLabels(ctx context.Context, ca k8schianetv1.ChiaCA) map[string]string {
+	var labels map[string]string = make(map[string]string)
+	labels = getCommonLabels(ctx, labels)
+	labels["app.kubernetes.io/instance"] = ca.Name
+	labels["chiaca-owner"] = ca.Name
+	return labels
 }
 
 // getChiaNodeOwnerReference gives the common owner reference spec for ChiaCA related objects
