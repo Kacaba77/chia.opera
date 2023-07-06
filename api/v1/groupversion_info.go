@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Chia Network, Inc.
+Copyright 2023 Chia Network Inc.
 */
 
 // Package v1 contains API Schema definitions for the k8s.chia.net v1 API group

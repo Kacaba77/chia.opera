@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Chia Network, Inc.
+Copyright 2023 Chia Network Inc.
 */
 
 package v1
