@@ -1024,6 +1024,8 @@ spec:
                         type: array
                     type: object
                 type: object
+            required:
+            - chia
             type: object
           status:
             description: ChiaNodeStatus defines the observed state of ChiaNode

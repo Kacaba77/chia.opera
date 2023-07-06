@@ -14,7 +14,6 @@ type ChiaNodeSpec struct {
 	AdditionalMetadata `json:",inline"`
 
 	// ChiaConfig defines the configuration options available to Chia component containers
-	// +optional
 	ChiaConfig ChiaNodeConfigSpec `json:"chia"`
 
 	// ChiaExporterConfig defines the configuration options available to Chia component containers

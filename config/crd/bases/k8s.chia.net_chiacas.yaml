@@ -36,7 +36,7 @@ spec:
             description: ChiaCASpec defines the desired state of ChiaCA
             properties:
               image:
-                default: registry.gitlab.com/bbhome/helm/chia-operator/chiaca-generator:latest
+                default: ghcr.io/chia-network/chia-operator/ca-gen:latest
                 description: Image defines the CA generator image to run
                 type: string
               imagePullSecret:
