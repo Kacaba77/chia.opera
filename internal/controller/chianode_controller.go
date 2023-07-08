@@ -362,58 +362,6 @@ func (r *ChiaNodeReconciler) reconcileStatefulset(ctx context.Context, rec recon
 							Resources:      chiaResources,
 							VolumeMounts:   r.getChiaVolumeMounts(ctx, node),
 						},
-						{
-							Name:            "chia-exporter",
-							SecurityContext: chiaSecContext,
-							Image:           chiaExporterImage,
-							ImagePullPolicy: imagePullPolicy,
-							Env: []corev1.EnvVar{
-								{
-									Name:  "CHIA_ROOT",
-									Value: "/chia-data",
-								},
-							},
-							Ports: []corev1.ContainerPort{
-								{
-									Name:          "metrics",
-									ContainerPort: chiaExporterPort,
-									Protocol:      "TCP",
-								},
-							},
-							LivenessProbe: &corev1.Probe{
-								ProbeHandler: corev1.ProbeHandler{
-									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/healthz",
-										Port: intstr.FromInt(chiaExporterPort),
-									},
-								},
-							},
-							ReadinessProbe: &corev1.Probe{
-								ProbeHandler: corev1.ProbeHandler{
-									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/healthz",
-										Port: intstr.FromInt(chiaExporterPort),
-									},
-								},
-							},
-							StartupProbe: &corev1.Probe{
-								ProbeHandler: corev1.ProbeHandler{
-									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/healthz",
-										Port: intstr.FromInt(chiaExporterPort),
-									},
-								},
-								FailureThreshold: 30,
-								PeriodSeconds:    10,
-							},
-							Resources: chiaResources,
-							VolumeMounts: []corev1.VolumeMount{
-								{
-									Name:      "chiaroot",
-									MountPath: "/chia-data",
-								},
-							},
-						},
 					},
 					NodeSelector: node.Spec.NodeSelector,
 					Volumes:      vols,
@@ -422,6 +370,9 @@ func (r *ChiaNodeReconciler) reconcileStatefulset(ctx context.Context, rec recon
 			VolumeClaimTemplates: volClaimTemplates,
 		},
 	}
+
+	exporterContainer := getChiaExporterContainer(ctx, chiaExporterImage, chiaSecContext, imagePullPolicy, chiaResources)
+	stateful.Spec.Template.Spec.Containers = append(stateful.Spec.Template.Spec.Containers, exporterContainer)
 
 	if node.Spec.PodSecurityContext != nil {
 		stateful.Spec.Template.Spec.SecurityContext = node.Spec.PodSecurityContext
@@ -551,6 +502,14 @@ func (r *ChiaNodeReconciler) getChiaNodeEnv(ctx context.Context, node k8schianet
 		env = append(env, corev1.EnvVar{
 			Name:  "TZ",
 			Value: *node.Spec.ChiaConfig.Timezone,
+		})
+	}
+
+	// log_level env var
+	if node.Spec.ChiaConfig.LogLevel != nil {
+		env = append(env, corev1.EnvVar{
+			Name:  "log_level",
+			Value: *node.Spec.ChiaConfig.LogLevel,
 		})
 	}
 

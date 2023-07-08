@@ -270,58 +270,6 @@ func (r *ChiaFarmerReconciler) reconcileDeployment(ctx context.Context, rec reco
 								},
 							},
 						},
-						{
-							Name:            "chia-exporter",
-							SecurityContext: chiaSecContext,
-							Image:           chiaExporterImage,
-							ImagePullPolicy: imagePullPolicy,
-							Env: []corev1.EnvVar{
-								{
-									Name:  "CHIA_ROOT",
-									Value: "/chia-data",
-								},
-							},
-							Ports: []corev1.ContainerPort{
-								{
-									Name:          "metrics",
-									ContainerPort: chiaExporterPort,
-									Protocol:      "TCP",
-								},
-							},
-							LivenessProbe: &corev1.Probe{
-								ProbeHandler: corev1.ProbeHandler{
-									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/healthz",
-										Port: intstr.FromInt(chiaExporterPort),
-									},
-								},
-							},
-							ReadinessProbe: &corev1.Probe{
-								ProbeHandler: corev1.ProbeHandler{
-									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/healthz",
-										Port: intstr.FromInt(chiaExporterPort),
-									},
-								},
-							},
-							StartupProbe: &corev1.Probe{
-								ProbeHandler: corev1.ProbeHandler{
-									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/healthz",
-										Port: intstr.FromInt(chiaExporterPort),
-									},
-								},
-								FailureThreshold: 30,
-								PeriodSeconds:    10,
-							},
-							Resources: chiaResources,
-							VolumeMounts: []corev1.VolumeMount{
-								{
-									Name:      "chiaroot",
-									MountPath: "/chia-data",
-								},
-							},
-						},
 					},
 					NodeSelector: farmer.Spec.NodeSelector,
 					Volumes:      r.getChiaVolumes(ctx, farmer),
@@ -329,6 +277,9 @@ func (r *ChiaFarmerReconciler) reconcileDeployment(ctx context.Context, rec reco
 			},
 		},
 	}
+
+	exporterContainer := getChiaExporterContainer(ctx, chiaExporterImage, chiaSecContext, imagePullPolicy, chiaResources)
+	deploy.Spec.Template.Spec.Containers = append(deploy.Spec.Template.Spec.Containers, exporterContainer)
 
 	if farmer.Spec.PodSecurityContext != nil {
 		deploy.Spec.Template.Spec.SecurityContext = farmer.Spec.PodSecurityContext
@@ -436,6 +387,14 @@ func (r *ChiaFarmerReconciler) getChiaEnv(ctx context.Context, farmer k8schianet
 		env = append(env, corev1.EnvVar{
 			Name:  "TZ",
 			Value: *farmer.Spec.ChiaConfig.Timezone,
+		})
+	}
+
+	// log_level env var
+	if farmer.Spec.ChiaConfig.LogLevel != nil {
+		env = append(env, corev1.EnvVar{
+			Name:  "log_level",
+			Value: *farmer.Spec.ChiaConfig.LogLevel,
 		})
 	}
 

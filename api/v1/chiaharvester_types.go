@@ -56,6 +56,10 @@ type ChiaHarvesterConfigSpec struct {
 	// +optional
 	Testnet *bool `json:"testnet,omitempty"`
 
+	// LogLevel is set to the desired chia config log_level
+	// +optional
+	LogLevel *string `json:"logLevel,omitempty"`
+
 	// Timezone can be set to your local timezone for accurate timestamps. Defaults to UTC
 	// +optional
 	Timezone *string `json:"timezone,omitempty"`

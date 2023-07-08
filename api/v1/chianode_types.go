@@ -66,6 +66,10 @@ type ChiaNodeConfigSpec struct {
 	// +optional
 	Timezone *string `json:"timezone,omitempty"`
 
+	// LogLevel is set to the desired chia config log_level
+	// +optional
+	LogLevel *string `json:"logLevel,omitempty"`
+
 	// Periodic probe of container liveness.
 	// +optional
 	LivenessProbe *corev1.Probe `json:"livenessProbe,omitempty"`
