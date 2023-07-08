@@ -1,9 +1,10 @@
-name: Build Operator
+name: Build Operator and CA generator
 
 on:
   push:
     branches:
-      - main
+      - '*'
+      - '!main'
   workflow_dispatch:
 
 permissions:
@@ -13,4 +14,9 @@ permissions:
 
 jobs:
   package:
-    uses: Chia-Network/actions/.github/workflows/docker-build.yaml@main
+    uses: Chia-Network/actions/.github/workflows/docker-build.yaml@subpath-option-docker-build
+
+  package-ca:
+    uses: Chia-Network/actions/.github/workflows/docker-build.yaml@subpath-option-docker-build
+    with:
+      image-subpath: "ca-gen"
