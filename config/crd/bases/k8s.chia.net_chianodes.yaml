@@ -202,6 +202,9 @@ spec:
                         format: int32
                         type: integer
                     type: object
+                  logLevel:
+                    description: LogLevel is set to the desired chia config log_level
+                    type: string
                   readinessProbe:
                     description: Periodic probe of container service readiness.
                     properties:

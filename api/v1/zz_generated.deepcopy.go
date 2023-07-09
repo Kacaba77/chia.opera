@@ -202,6 +202,11 @@ func (in *ChiaFarmerConfigSpec) DeepCopyInto(out *ChiaFarmerConfigSpec) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.LogLevel != nil {
+		in, out := &in.LogLevel, &out.LogLevel
+		*out = new(string)
+		**out = **in
+	}
 	if in.Timezone != nil {
 		in, out := &in.Timezone, &out.Timezone
 		*out = new(string)
@@ -364,6 +369,11 @@ func (in *ChiaHarvesterConfigSpec) DeepCopyInto(out *ChiaHarvesterConfigSpec) {
 	if in.Testnet != nil {
 		in, out := &in.Testnet, &out.Testnet
 		*out = new(bool)
+		**out = **in
+	}
+	if in.LogLevel != nil {
+		in, out := &in.LogLevel, &out.LogLevel
+		*out = new(string)
 		**out = **in
 	}
 	if in.Timezone != nil {
@@ -547,6 +557,11 @@ func (in *ChiaNodeConfigSpec) DeepCopyInto(out *ChiaNodeConfigSpec) {
 	}
 	if in.Timezone != nil {
 		in, out := &in.Timezone, &out.Timezone
+		*out = new(string)
+		**out = **in
+	}
+	if in.LogLevel != nil {
+		in, out := &in.LogLevel, &out.LogLevel
 		*out = new(string)
 		**out = **in
 	}
