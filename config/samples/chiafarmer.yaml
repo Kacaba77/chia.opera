@@ -11,8 +11,10 @@ spec:
   chia:
     caSecretName: chiaca-secret
     testnet: true
-    timezone: "America/Vancouver"
+    timezone: "UTC"
+    logLevel: "INFO"
     fullNodePeer: "chianode-sample-node.chiaca.svc.cluster.local:58444"
+    # Secret containing a key.txt file with your mnemonic key
     secretKey:
       name: "chiakey-secret"
       key: "key.txt"

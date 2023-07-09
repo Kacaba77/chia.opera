@@ -11,5 +11,14 @@ spec:
   chia:
     caSecretName: chiaca-secret
     testnet: true
-    timezone: "America/Vancouver"
+    timezone: "UTC"
+    logLevel: "INFO"
     farmerAddress: "chiafarmer-sample-farmer.chiaca.svc.cluster.local"
+  storage:
+    plots:
+      persistentVolumeClaim:
+	      - claimName: "plotpvc1"
+	      - claimName: "plotpvc2"
+	    hostPathVolume:
+	      - path: "/home/user/storage/plots1"
+	      - path: "/home/user/storage/plots2"

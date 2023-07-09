@@ -12,7 +12,7 @@ spec:
   # image: newcontainer
 
   # Optional: Change the CA generator's imagePullSecret
-  imagePullSecret: gitlab-registry
+  # imagePullSecret: registrypullsecret
 
   # Name of the k8s Secret to contain CA certs/keys
   secret: chiaca-secret

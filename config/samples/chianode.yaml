@@ -12,9 +12,9 @@ spec:
   chia:
     caSecretName: chiaca-secret
     testnet: true
-    timezone: "America/Vancouver"
+    timezone: "UTC"
+    logLevel: "INFO"
   storage:
     chiaRoot:
-      storageClass: "longhorn"
-      resourceRequest: "260Gi"
-
+      storageClass: ""
+      resourceRequest: "250Gi"
