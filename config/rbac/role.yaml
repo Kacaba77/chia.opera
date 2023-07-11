@@ -1,0 +1,189 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - ChiaHarvesters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - ChiaHarvesters/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - ChiaHarvesters/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiacas
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiacas/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiacas/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiafarmers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiafarmers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiafarmers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chianodes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chianodes/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chianodes/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch

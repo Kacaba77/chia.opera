@@ -1,0 +1,18 @@
+apiVersion: k8s.chia.net/v1
+kind: ChiaCA
+metadata:
+  labels:
+    app.kubernetes.io/name: chiaca
+    app.kubernetes.io/instance: chiaca-sample
+    app.kubernetes.io/part-of: chia-operator
+    app.kubernetes.io/created-by: chia-operator
+  name: chiaca-sample
+spec:
+  # Optional: Change the CA generator image
+  # image: newcontainer
+
+  # Optional: Change the CA generator's imagePullSecret
+  # imagePullSecret: registrypullsecret
+
+  # Name of the k8s Secret to contain CA certs/keys
+  secret: chiaca-secret

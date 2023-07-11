@@ -1,0 +1,21 @@
+name: Build Operator and CA generator
+
+on:
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  packages: write
+
+jobs:
+  package:
+    uses: Chia-Network/actions/.github/workflows/docker-build.yaml@main
+
+  package-ca-gen:
+    uses: Chia-Network/actions/.github/workflows/docker-build.yaml@main
+    with:
+      image_subpath: "ca-gen"

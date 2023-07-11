@@ -1,0 +1,26 @@
+name: Run test
+
+on:
+  push:
+    branches:
+      - '*'
+      - '!main'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  run:
+    name: Run tests
+    runs-on: [k8s-internal]
+    container: golang:1
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Lint/test
+        run: |
+          make test
