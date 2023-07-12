@@ -98,8 +98,8 @@ As you can see, we used a hostPath volume for CHIA_ROOT. We also specified a nod
 storage:
   chiaRoot:
     persistentVolumeClaim:
-	  storageClass: ""
-      ResourceRequest: "300Gi"
+      storageClass: ""
+      resourceRequest: "300Gi"
 ```
 Finally, apply your ChiaNode with: `kubectl apply -f node.yaml`
 
