@@ -64,32 +64,6 @@ rules:
 - apiGroups:
   - k8s.chia.net
   resources:
-  - ChiaHarvesters
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - k8s.chia.net
-  resources:
-  - ChiaHarvesters/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - k8s.chia.net
-  resources:
-  - ChiaHarvesters/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - k8s.chia.net
-  resources:
   - chiacas
   verbs:
   - create
@@ -135,6 +109,32 @@ rules:
   - k8s.chia.net
   resources:
   - chiafarmers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiaharvesters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiaharvesters/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiaharvesters/status
   verbs:
   - get
   - patch
