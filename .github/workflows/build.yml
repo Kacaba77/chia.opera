@@ -18,4 +18,6 @@ jobs:
   package-ca-gen:
     uses: Chia-Network/actions/.github/workflows/docker-build.yaml@main
     with:
+      docker-context: "./chiaca-generator"
+      dockerfile: "./chiaca-generator/Dockerfile"
       image_subpath: "ca-gen"
