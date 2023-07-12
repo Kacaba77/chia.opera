@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   package:
-    uses: Chia-Network/actions/.github/workflows/docker-build.yaml@main
+    uses: Chia-Network/actions/.github/workflows/docker-build.yaml@docker-context
 
   package-ca-gen:
     uses: Chia-Network/actions/.github/workflows/docker-build.yaml@docker-context
