@@ -3,8 +3,7 @@ name: Build Operator and CA generator
 on:
   push:
     branches:
-      - '*'
-      - '!main'
+      - 'main'
   workflow_dispatch:
 
 permissions:
@@ -14,10 +13,10 @@ permissions:
 
 jobs:
   package:
-    uses: Chia-Network/actions/.github/workflows/docker-build.yaml@docker-context
+    uses: Chia-Network/actions/.github/workflows/docker-build.yaml@main
 
   package-ca-gen:
-    uses: Chia-Network/actions/.github/workflows/docker-build.yaml@docker-context
+    uses: Chia-Network/actions/.github/workflows/docker-build.yaml@main
     with:
       docker-context: "./chiaca-generator"
       dockerfile: "./chiaca-generator/Dockerfile"
