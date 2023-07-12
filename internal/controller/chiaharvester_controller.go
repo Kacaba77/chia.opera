@@ -38,9 +38,9 @@ type ChiaHarvesterReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=k8s.chia.net,resources=ChiaHarvesters,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=k8s.chia.net,resources=ChiaHarvesters/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=k8s.chia.net,resources=ChiaHarvesters/finalizers,verbs=update
+//+kubebuilder:rbac:groups=k8s.chia.net,resources=chiaharvesters,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=k8s.chia.net,resources=chiaharvesters/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=k8s.chia.net,resources=chiaharvesters/finalizers,verbs=update
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch
 //+kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;create;update;patch
 
