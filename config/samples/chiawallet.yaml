@@ -1,0 +1,21 @@
+apiVersion: k8s.chia.net/v1
+kind: ChiaWallet
+metadata:
+  labels:
+    app.kubernetes.io/name: chiawallet
+    app.kubernetes.io/instance: chiawallet-sample
+    app.kubernetes.io/part-of: chia-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: chia-operator
+  name: chiawallet-sample
+spec:
+  chia:
+    caSecretName: chiaca-secret
+    testnet: true
+    timezone: "UTC"
+    logLevel: "INFO"
+    fullNodePeer: "chianode-sample-node.chiaca.svc.cluster.local:58444"
+    # Secret containing a key.txt file with your mnemonic key
+    secretKey:
+      name: "chiakey-secret"
+      key: "key.txt"
