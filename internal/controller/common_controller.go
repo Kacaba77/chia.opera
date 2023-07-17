@@ -7,8 +7,11 @@ package controller
 import (
 	"context"
 
+	"github.com/cisco-open/operator-tools/pkg/reconciler"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 const (
@@ -26,6 +29,16 @@ const (
 
 // controllerOwner tells k8s objects that the CR that created it is its controller owner
 var controllerOwner = true
+
+// reconcileService uses the ResourceReconciler to determine if the service resource needs to be created or updated
+func reconcileService(ctx context.Context, rec reconciler.ResourceReconciler, service corev1.Service) (*reconcile.Result, error) {
+	return rec.ReconcileResource(&service, reconciler.StatePresent)
+}
+
+// reconcileDeployment uses the ResourceReconciler to determine if the deployment resource needs to be created or updated
+func reconcileDeployment(ctx context.Context, rec reconciler.ResourceReconciler, deploy appsv1.Deployment) (*reconcile.Result, error) {
+	return rec.ReconcileResource(&deploy, reconciler.StatePresent)
+}
 
 // getCommonLabels gives some common labels for chia-operator related objects
 func getCommonLabels(ctx context.Context, labels map[string]string) map[string]string {

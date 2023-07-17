@@ -178,6 +178,32 @@ rules:
   - patch
   - update
 - apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiawallets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiawallets/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - k8s.chia.net
+  resources:
+  - chiawallets/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - rbac.authorization.k8s.io
   resources:
   - rolebindings

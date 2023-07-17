@@ -7,6 +7,7 @@ Kubernetes operator for managing Chia components in kubernetes. Currently suppor
  - full_nodes
  - farmers
  - harvesters
+ - wallets
 
 Applying a CR for each component allows you to instantiate a configured instance of that component that is able to communicate to other requisite components in the cluster. A whole farm can be ran with each component isolated in its own pod, with a chia-exporter sidecar to scrape Prometheus metrics.
 
@@ -151,10 +152,33 @@ spec:
 
 The config here is very similar to the other components we already made, but we're specifying the farmerAddress, which tells the harvester where to look for the farmer. The farmer port is inferred. And in the storage config, we're specifying two plot directories that are mounted to a particular host. And we're pinning this harvester pod to that node using a nodeSelector with a label that exists on that particular node.
 
+#### wallet
+
+Now we can create a wallet that talks to our full_node. Create a file named `wallet.yaml`:
+
+```yaml
+apiVersion: k8s.chia.net/v1
+kind: ChiaWallet
+metadata:
+  name: mainnet
+spec:
+  chia:
+    caSecretName: mainnet-ca
+    timezone: "UTC"
+    fullNodePeer: "mainnet-node.default.svc.cluster.local:8444"
+    secretKey:
+      name: "chiakey"
+      key: "key.txt"
+```
+
+The config here is very similar to the farmer we already made since it also requires your mnemonic key and a full_node peer. 
+
+Finally, apply this ChiaWallet with `kubectl apply -f wallet.yaml`
+
 ## TODO
 
 - Add to examples in `config/samples`. The full API for all of this operator's CRDs are shown in Go structs in `api/v1`
-- Add support for other Chia components (wallet, timelord, dns-introducer, etc)
+- Add support for other Chia components (timelord, dns-introducer, etc)
 - Make chia-exporter an optional container in the pod
 
 ## License
