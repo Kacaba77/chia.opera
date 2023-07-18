@@ -82,7 +82,7 @@ var _ = Describe("ChiaNode controller", func() {
 			}, timeout, interval).Should(BeTrue())
 
 			// Ensure the ChiaNode's spec.chia.timezone was set to the expected timezone
-			Expect(createdChiaNode.Spec.ChiaConfig.Timezone).Should(Equal(timezone))
+			Expect(*createdChiaNode.Spec.ChiaConfig.Timezone).Should(Equal(timezone))
 		})
 	})
 })
