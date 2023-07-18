@@ -81,7 +81,6 @@ var _ = Describe("ChiaWallet controller", func() {
 
 			// Ensure the ChiaWallet's spec.chia.fullNodePeer was set to the expected fullNodePeer
 			Expect(createdChiaWallet.Spec.ChiaConfig.FullNodePeer).Should(Equal(fullNodePeer))
-
 		})
 	})
 
