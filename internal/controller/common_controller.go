@@ -9,7 +9,9 @@ import (
 
 	"github.com/cisco-open/operator-tools/pkg/reconciler"
 	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
@@ -38,6 +40,31 @@ func reconcileService(ctx context.Context, rec reconciler.ResourceReconciler, se
 // reconcileDeployment uses the ResourceReconciler to determine if the deployment resource needs to be created or updated
 func reconcileDeployment(ctx context.Context, rec reconciler.ResourceReconciler, deploy appsv1.Deployment) (*reconcile.Result, error) {
 	return rec.ReconcileResource(&deploy, reconciler.StatePresent)
+}
+
+// reconcileStatefulset uses the ResourceReconciler to determine if the statefulset resource needs to be created or updated
+func reconcileStatefulset(ctx context.Context, rec reconciler.ResourceReconciler, stateful appsv1.StatefulSet) (*reconcile.Result, error) {
+	return rec.ReconcileResource(&stateful, reconciler.StatePresent)
+}
+
+// reconcileServiceAccount uses the ResourceReconciler to determine if the serviceaccount resource needs to be created or updated
+func reconcileServiceAccount(ctx context.Context, rec reconciler.ResourceReconciler, sa corev1.ServiceAccount) (*reconcile.Result, error) {
+	return rec.ReconcileResource(&sa, reconciler.StatePresent)
+}
+
+// reconcileRole uses the ResourceReconciler to determine if the role resource needs to be created or updated
+func reconcileRole(ctx context.Context, rec reconciler.ResourceReconciler, role rbacv1.Role) (*reconcile.Result, error) {
+	return rec.ReconcileResource(&role, reconciler.StatePresent)
+}
+
+// reconcileRoleBinding uses the ResourceReconciler to determine if the rolebinding resource needs to be created or updated
+func reconcileRoleBinding(ctx context.Context, rec reconciler.ResourceReconciler, rb rbacv1.RoleBinding) (*reconcile.Result, error) {
+	return rec.ReconcileResource(&rb, reconciler.StatePresent)
+}
+
+// reconcileJob uses the ResourceReconciler to determine if the job resource needs to be created or updated
+func reconcileJob(ctx context.Context, rec reconciler.ResourceReconciler, job batchv1.Job) (*reconcile.Result, error) {
+	return rec.ReconcileResource(&job, reconciler.StatePresent)
 }
 
 // getCommonLabels gives some common labels for chia-operator related objects

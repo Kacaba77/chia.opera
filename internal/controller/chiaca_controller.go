@@ -64,7 +64,8 @@ func (r *ChiaCAReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	}
 
 	// Reconcile resources, creating them if they don't exist
-	res, err := r.reconcileCAServiceAccount(ctx, resourceReconciler, ca)
+	sa := r.assembleCAServiceAccount(ctx, ca)
+	res, err := reconcileServiceAccount(ctx, resourceReconciler, sa)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -72,7 +73,8 @@ func (r *ChiaCAReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return *res, fmt.Errorf("ChiaCAReconciler ChiaCA=%s encountered error reconciling CA generator ServiceAccount: %v", req.NamespacedName, err)
 	}
 
-	res, err = r.reconcileCARole(ctx, resourceReconciler, ca)
+	role := r.assembleCARole(ctx, ca)
+	res, err = reconcileRole(ctx, resourceReconciler, role)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -80,7 +82,8 @@ func (r *ChiaCAReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return *res, fmt.Errorf("ChiaCAReconciler ChiaCA=%s encountered error reconciling CA generator Role: %v", req.NamespacedName, err)
 	}
 
-	res, err = r.reconcileCARoleBinding(ctx, resourceReconciler, ca)
+	rb := r.assembleCARoleBinding(ctx, ca)
+	res, err = reconcileRoleBinding(ctx, resourceReconciler, rb)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -96,7 +99,8 @@ func (r *ChiaCAReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	}
 	// Create CA generating Job if Secret does not already exist
 	if notFound {
-		res, err = r.reconcileCAJob(ctx, resourceReconciler, ca)
+		job := r.assembleCAJob(ctx, ca)
+		res, err = reconcileJob(ctx, resourceReconciler, job)
 		if err != nil {
 			if res == nil {
 				res = &reconcile.Result{}
@@ -139,8 +143,8 @@ func (r *ChiaCAReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-// reconcileCARole reconciles the Job resource for a ChiaCA CR
-func (r *ChiaCAReconciler) reconcileCAJob(ctx context.Context, rec reconciler.ResourceReconciler, ca k8schianetv1.ChiaCA) (*reconcile.Result, error) {
+// assembleCAJob assembles the Job resource for a ChiaCA CR
+func (r *ChiaCAReconciler) assembleCAJob(ctx context.Context, ca k8schianetv1.ChiaCA) batchv1.Job {
 	var job batchv1.Job = batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            ca.Name,
@@ -181,12 +185,12 @@ func (r *ChiaCAReconciler) reconcileCAJob(ctx context.Context, rec reconciler.Re
 		}
 	}
 
-	return rec.ReconcileResource(&job, reconciler.StatePresent)
+	return job
 }
 
-// reconcileCARole reconciles the ServiceAccount resource for a ChiaCA CR
-func (r *ChiaCAReconciler) reconcileCAServiceAccount(ctx context.Context, rec reconciler.ResourceReconciler, ca k8schianetv1.ChiaCA) (*reconcile.Result, error) {
-	var serviceAccount corev1.ServiceAccount = corev1.ServiceAccount{
+// assembleCAServiceAccount assembles the ServiceAccount resource for a ChiaCA CR
+func (r *ChiaCAReconciler) assembleCAServiceAccount(ctx context.Context, ca k8schianetv1.ChiaCA) corev1.ServiceAccount {
+	return corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s%s", ca.Name, caGeneratorNameSuffix),
 			Namespace:       ca.Namespace,
@@ -194,13 +198,11 @@ func (r *ChiaCAReconciler) reconcileCAServiceAccount(ctx context.Context, rec re
 			OwnerReferences: r.getChiaCAOwnerReference(ctx, ca),
 		},
 	}
-
-	return rec.ReconcileResource(&serviceAccount, reconciler.StatePresent)
 }
 
-// reconcileCARole reconciles the Role resource for a ChiaCA CR
-func (r *ChiaCAReconciler) reconcileCARole(ctx context.Context, rec reconciler.ResourceReconciler, ca k8schianetv1.ChiaCA) (*reconcile.Result, error) {
-	var role rbacv1.Role = rbacv1.Role{
+// assembleCARole assembles the Role resource for a ChiaCA CR
+func (r *ChiaCAReconciler) assembleCARole(ctx context.Context, ca k8schianetv1.ChiaCA) rbacv1.Role {
+	return rbacv1.Role{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s%s", ca.Name, caGeneratorNameSuffix),
 			Namespace:       ca.Namespace,
@@ -221,13 +223,11 @@ func (r *ChiaCAReconciler) reconcileCARole(ctx context.Context, rec reconciler.R
 			},
 		},
 	}
-
-	return rec.ReconcileResource(&role, reconciler.StatePresent)
 }
 
-// reconcileCARoleBinding reconciles the RoleBinding resource for a ChiaCA CR
-func (r *ChiaCAReconciler) reconcileCARoleBinding(ctx context.Context, rec reconciler.ResourceReconciler, ca k8schianetv1.ChiaCA) (*reconcile.Result, error) {
-	var rolebind rbacv1.RoleBinding = rbacv1.RoleBinding{
+// assembleCARoleBinding assembles the RoleBinding resource for a ChiaCA CR
+func (r *ChiaCAReconciler) assembleCARoleBinding(ctx context.Context, ca k8schianetv1.ChiaCA) rbacv1.RoleBinding {
+	return rbacv1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s%s", ca.Name, caGeneratorNameSuffix),
 			Namespace:       ca.Namespace,
@@ -245,8 +245,6 @@ func (r *ChiaCAReconciler) reconcileCARoleBinding(ctx context.Context, rec recon
 			Name: fmt.Sprintf("%s%s", ca.Name, caGeneratorNameSuffix),
 		},
 	}
-
-	return rec.ReconcileResource(&rolebind, reconciler.StatePresent)
 }
 
 // getCASecret fetches the k8s Secret that matches this ChiaCA deployment. Returns Secret, boolean, and error (if any).
