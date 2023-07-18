@@ -27,6 +27,7 @@ var _ = Describe("ChiaNode controller", func() {
 		interval = time.Millisecond * 250
 	)
 	var (
+		caSecretName    = "test-secret"
 		testnet         = true
 		timezone        = "UTC"
 		logLevel        = "INFO"
@@ -49,7 +50,7 @@ var _ = Describe("ChiaNode controller", func() {
 				},
 				Spec: apiv1.ChiaNodeSpec{
 					ChiaConfig: apiv1.ChiaNodeConfigSpec{
-						CASecretName: "test-secret",
+						CASecretName: caSecretName,
 						Testnet:      &testnet,
 						Timezone:     &timezone,
 						LogLevel:     &logLevel,

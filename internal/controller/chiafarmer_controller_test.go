@@ -17,10 +17,10 @@ import (
 
 // +kubebuilder:docs-gen:collapse=Imports
 
-var _ = Describe("ChiaWallet controller", func() {
+var _ = Describe("ChiaFarmer controller", func() {
 	const (
-		chiaWalletName      = "test-chiawallet"
-		chiaWalletNamespace = "default"
+		chiaFarmerName      = "test-chiafarmer"
+		chiaFarmerNamespace = "default"
 
 		timeout  = time.Second * 10
 		duration = time.Second * 10
@@ -36,21 +36,21 @@ var _ = Describe("ChiaWallet controller", func() {
 		secretKeyKey  = "key.txt"
 	)
 
-	Context("When updating ChiaWallet Status", func() {
-		It("Should update ChiaWallet Status.Ready to true when deployment is created", func() {
-			By("By creating a new ChiaWallet")
+	Context("When updating ChiaFarmer Status", func() {
+		It("Should update ChiaFarmer Status.Ready to true when deployment is created", func() {
+			By("By creating a new ChiaFarmer")
 			ctx := context.Background()
-			wallet := &apiv1.ChiaWallet{
+			farmer := &apiv1.ChiaFarmer{
 				TypeMeta: metav1.TypeMeta{
 					APIVersion: "k8s.chia.net/v1",
-					Kind:       "ChiaWallet",
+					Kind:       "ChiaFarmer",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      chiaWalletName,
-					Namespace: chiaWalletNamespace,
+					Name:      chiaFarmerName,
+					Namespace: chiaFarmerNamespace,
 				},
-				Spec: apiv1.ChiaWalletSpec{
-					ChiaConfig: apiv1.ChiaWalletConfigSpec{
+				Spec: apiv1.ChiaFarmerSpec{
+					ChiaConfig: apiv1.ChiaFarmerConfigSpec{
 						CASecretName: caSecretName,
 						Testnet:      &testnet,
 						Timezone:     &timezone,
@@ -69,20 +69,19 @@ var _ = Describe("ChiaWallet controller", func() {
 				},
 			}
 
-			// Create ChiaWallet
-			Expect(k8sClient.Create(ctx, wallet)).Should(Succeed())
+			// Create ChiaFarmer
+			Expect(k8sClient.Create(ctx, farmer)).Should(Succeed())
 
-			// Look up the created ChiaWallet
-			cronjobLookupKey := types.NamespacedName{Name: chiaWalletName, Namespace: chiaWalletNamespace}
-			createdChiaWallet := &apiv1.ChiaWallet{}
+			// Look up the created ChiaFarmer
+			cronjobLookupKey := types.NamespacedName{Name: chiaFarmerName, Namespace: chiaFarmerNamespace}
+			createdChiaFarmer := &apiv1.ChiaFarmer{}
 			Eventually(func() bool {
-				err := k8sClient.Get(ctx, cronjobLookupKey, createdChiaWallet)
+				err := k8sClient.Get(ctx, cronjobLookupKey, createdChiaFarmer)
 				return err == nil
 			}, timeout, interval).Should(BeTrue())
 
-			// Ensure the ChiaWallet's spec.chia.fullNodePeer was set to the expected fullNodePeer
-			Expect(createdChiaWallet.Spec.ChiaConfig.FullNodePeer).Should(Equal(fullNodePeer))
+			// Ensure the ChiaFarmer's spec.chia.timezone was set to the expected timezone
+			Expect(*createdChiaFarmer.Spec.ChiaConfig.Timezone).Should(Equal(timezone))
 		})
 	})
-
 })

@@ -27,9 +27,10 @@ var _ = Describe("ChiaHarvester controller", func() {
 		interval = time.Millisecond * 250
 	)
 	var (
-		testnet  = true
-		timezone = "UTC"
-		logLevel = "INFO"
+		caSecretName = "test-secret"
+		testnet      = true
+		timezone     = "UTC"
+		logLevel     = "INFO"
 	)
 
 	Context("When updating ChiaHarvester Status", func() {
@@ -47,7 +48,7 @@ var _ = Describe("ChiaHarvester controller", func() {
 				},
 				Spec: apiv1.ChiaHarvesterSpec{
 					ChiaConfig: apiv1.ChiaHarvesterConfigSpec{
-						CASecretName: "test-secret",
+						CASecretName: caSecretName,
 						Testnet:      &testnet,
 						Timezone:     &timezone,
 						LogLevel:     &logLevel,
