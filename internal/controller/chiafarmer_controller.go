@@ -63,7 +63,8 @@ func (r *ChiaFarmerReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	}
 
 	// Reconcile ChiaFarmer owned objects
-	res, err := r.reconcileBaseService(ctx, resourceReconciler, farmer)
+	srv := r.assembleBaseService(ctx, farmer)
+	res, err := reconcileService(ctx, resourceReconciler, srv)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -71,7 +72,8 @@ func (r *ChiaFarmerReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return *res, fmt.Errorf("ChiaFarmerReconciler ChiaFarmer=%s encountered error reconciling farmer Service: %v", req.NamespacedName, err)
 	}
 
-	res, err = r.reconcileChiaExporterService(ctx, resourceReconciler, farmer)
+	srv = r.assembleChiaExporterService(ctx, farmer)
+	res, err = reconcileService(ctx, resourceReconciler, srv)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -79,7 +81,8 @@ func (r *ChiaFarmerReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return *res, fmt.Errorf("ChiaFarmerReconciler ChiaFarmer=%s encountered error reconciling farmer chia-exporter Service: %v", req.NamespacedName, err)
 	}
 
-	res, err = r.reconcileDeployment(ctx, resourceReconciler, farmer)
+	deploy := r.assembleDeployment(ctx, farmer)
+	res, err = reconcileDeployment(ctx, resourceReconciler, deploy)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -105,9 +108,9 @@ func (r *ChiaFarmerReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-// reconcileBaseService reconciles the main Service resource for a Chiafarmer CR
-func (r *ChiaFarmerReconciler) reconcileBaseService(ctx context.Context, rec reconciler.ResourceReconciler, farmer k8schianetv1.ChiaFarmer) (*reconcile.Result, error) {
-	var service corev1.Service = corev1.Service{
+// assembleBaseService assembles the main Service resource for a Chiafarmer CR
+func (r *ChiaFarmerReconciler) assembleBaseService(ctx context.Context, farmer k8schianetv1.ChiaFarmer) corev1.Service {
+	return corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-farmer", farmer.Name),
 			Namespace:       farmer.Namespace,
@@ -140,13 +143,11 @@ func (r *ChiaFarmerReconciler) reconcileBaseService(ctx context.Context, rec rec
 			Selector: r.getCommonLabels(ctx, farmer, farmer.Spec.AdditionalMetadata.Labels),
 		},
 	}
-
-	return rec.ReconcileResource(&service, reconciler.StatePresent)
 }
 
-// reconcileChiaExporterService reconciles the chia-exporter Service resource for a ChiaFarmer CR
-func (r *ChiaFarmerReconciler) reconcileChiaExporterService(ctx context.Context, rec reconciler.ResourceReconciler, farmer k8schianetv1.ChiaFarmer) (*reconcile.Result, error) {
-	var service corev1.Service = corev1.Service{
+// assembleChiaExporterService assembles the chia-exporter Service resource for a ChiaFarmer CR
+func (r *ChiaFarmerReconciler) assembleChiaExporterService(ctx context.Context, farmer k8schianetv1.ChiaFarmer) corev1.Service {
+	return corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-farmer-metrics", farmer.Name),
 			Namespace:       farmer.Namespace,
@@ -167,12 +168,10 @@ func (r *ChiaFarmerReconciler) reconcileChiaExporterService(ctx context.Context,
 			Selector: r.getCommonLabels(ctx, farmer, farmer.Spec.AdditionalMetadata.Labels),
 		},
 	}
-
-	return rec.ReconcileResource(&service, reconciler.StatePresent)
 }
 
-// reconcileDeployment reconciles the farmer Deployment resource for a ChiaFarmer CR
-func (r *ChiaFarmerReconciler) reconcileDeployment(ctx context.Context, rec reconciler.ResourceReconciler, farmer k8schianetv1.ChiaFarmer) (*reconcile.Result, error) {
+// assembleDeployment assembles the farmer Deployment resource for a ChiaFarmer CR
+func (r *ChiaFarmerReconciler) assembleDeployment(ctx context.Context, farmer k8schianetv1.ChiaFarmer) appsv1.Deployment {
 	var chiaSecContext *corev1.SecurityContext
 	if farmer.Spec.ChiaConfig.SecurityContext != nil {
 		chiaSecContext = farmer.Spec.ChiaConfig.SecurityContext
@@ -287,7 +286,7 @@ func (r *ChiaFarmerReconciler) reconcileDeployment(ctx context.Context, rec reco
 
 	// TODO add pod affinity, tolerations
 
-	return rec.ReconcileResource(&deploy, reconciler.StatePresent)
+	return deploy
 }
 
 // getChiaVolumes retrieves the requisite volumes from the Chia config struct

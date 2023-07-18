@@ -67,7 +67,8 @@ func (r *ChiaNodeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	}
 
 	// Reconcile ChiaNode owned objects
-	res, err := r.reconcileBaseService(ctx, resourceReconciler, node)
+	srv := r.assembleBaseService(ctx, node)
+	res, err := reconcileService(ctx, resourceReconciler, srv)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -75,7 +76,8 @@ func (r *ChiaNodeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return *res, fmt.Errorf("ChiaNodeReconciler ChiaNode=%s encountered error reconciling node Service: %v", req.NamespacedName, err)
 	}
 
-	res, err = r.reconcileInternalService(ctx, resourceReconciler, node)
+	srv = r.assembleInternalService(ctx, node)
+	res, err = reconcileService(ctx, resourceReconciler, srv)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -83,7 +85,8 @@ func (r *ChiaNodeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return *res, fmt.Errorf("ChiaNodeReconciler ChiaNode=%s encountered error reconciling node Local Service: %v", req.NamespacedName, err)
 	}
 
-	res, err = r.reconcileHeadlessService(ctx, resourceReconciler, node)
+	srv = r.assembleHeadlessService(ctx, node)
+	res, err = reconcileService(ctx, resourceReconciler, srv)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -91,7 +94,8 @@ func (r *ChiaNodeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return *res, fmt.Errorf("ChiaNodeReconciler ChiaNode=%s encountered error reconciling node headless Service: %v", req.NamespacedName, err)
 	}
 
-	res, err = r.reconcileChiaExporterService(ctx, resourceReconciler, node)
+	srv = r.assembleChiaExporterService(ctx, node)
+	res, err = reconcileService(ctx, resourceReconciler, srv)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -99,7 +103,8 @@ func (r *ChiaNodeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return *res, fmt.Errorf("ChiaNodeReconciler ChiaNode=%s encountered error reconciling node chia-exporter Service: %v", req.NamespacedName, err)
 	}
 
-	res, err = r.reconcileStatefulset(ctx, resourceReconciler, node)
+	stateful := r.assembleStatefulset(ctx, node)
+	res, err = reconcileStatefulset(ctx, resourceReconciler, stateful)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -125,9 +130,9 @@ func (r *ChiaNodeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-// reconcileBaseService reconciles the main Service resource for a ChiaNode CR
-func (r *ChiaNodeReconciler) reconcileBaseService(ctx context.Context, rec reconciler.ResourceReconciler, node k8schianetv1.ChiaNode) (*reconcile.Result, error) {
-	var service corev1.Service = corev1.Service{
+// assembleBaseService assembles the main Service resource for a ChiaNode CR
+func (r *ChiaNodeReconciler) assembleBaseService(ctx context.Context, node k8schianetv1.ChiaNode) corev1.Service {
+	return corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-node", node.Name),
 			Namespace:       node.Namespace,
@@ -160,14 +165,12 @@ func (r *ChiaNodeReconciler) reconcileBaseService(ctx context.Context, rec recon
 			Selector: r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 		},
 	}
-
-	return rec.ReconcileResource(&service, reconciler.StatePresent)
 }
 
-// reconcileInternalService reconciles the internal Service resource for a ChiaNode CR
-func (r *ChiaNodeReconciler) reconcileInternalService(ctx context.Context, rec reconciler.ResourceReconciler, node k8schianetv1.ChiaNode) (*reconcile.Result, error) {
+// assembleInternalService assembles the internal Service resource for a ChiaNode CR
+func (r *ChiaNodeReconciler) assembleInternalService(ctx context.Context, node k8schianetv1.ChiaNode) corev1.Service {
 	local := corev1.ServiceInternalTrafficPolicyLocal
-	var service corev1.Service = corev1.Service{
+	return corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-node-internal", node.Name),
 			Namespace:       node.Namespace,
@@ -201,13 +204,11 @@ func (r *ChiaNodeReconciler) reconcileInternalService(ctx context.Context, rec r
 			Selector: r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 		},
 	}
-
-	return rec.ReconcileResource(&service, reconciler.StatePresent)
 }
 
-// reconcileHeadlessService reconciles the headless Service resource for a ChiaNode CR
-func (r *ChiaNodeReconciler) reconcileHeadlessService(ctx context.Context, rec reconciler.ResourceReconciler, node k8schianetv1.ChiaNode) (*reconcile.Result, error) {
-	var service corev1.Service = corev1.Service{
+// assembleHeadlessService assembles the headless Service resource for a ChiaNode CR
+func (r *ChiaNodeReconciler) assembleHeadlessService(ctx context.Context, node k8schianetv1.ChiaNode) corev1.Service {
+	return corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-node-headless", node.Name),
 			Namespace:       node.Namespace,
@@ -241,13 +242,11 @@ func (r *ChiaNodeReconciler) reconcileHeadlessService(ctx context.Context, rec r
 			Selector: r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 		},
 	}
-
-	return rec.ReconcileResource(&service, reconciler.StatePresent)
 }
 
-// reconcileChiaExporterService reconciles the chia-exporter Service resource for a ChiaNode CR
-func (r *ChiaNodeReconciler) reconcileChiaExporterService(ctx context.Context, rec reconciler.ResourceReconciler, node k8schianetv1.ChiaNode) (*reconcile.Result, error) {
-	var service corev1.Service = corev1.Service{
+// assembleChiaExporterService assembles the chia-exporter Service resource for a ChiaNode CR
+func (r *ChiaNodeReconciler) assembleChiaExporterService(ctx context.Context, node k8schianetv1.ChiaNode) corev1.Service {
+	return corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-node-metrics", node.Name),
 			Namespace:       node.Namespace,
@@ -268,12 +267,10 @@ func (r *ChiaNodeReconciler) reconcileChiaExporterService(ctx context.Context, r
 			Selector: r.getCommonLabels(ctx, node, node.Spec.AdditionalMetadata.Labels),
 		},
 	}
-
-	return rec.ReconcileResource(&service, reconciler.StatePresent)
 }
 
-// reconcileStatefulset reconciles the node StatefulSet resource for a ChiaNode CR
-func (r *ChiaNodeReconciler) reconcileStatefulset(ctx context.Context, rec reconciler.ResourceReconciler, node k8schianetv1.ChiaNode) (*reconcile.Result, error) {
+// assembleStatefulset assembles the node StatefulSet resource for a ChiaNode CR
+func (r *ChiaNodeReconciler) assembleStatefulset(ctx context.Context, node k8schianetv1.ChiaNode) appsv1.StatefulSet {
 	var chiaSecContext *corev1.SecurityContext
 	if node.Spec.ChiaConfig.SecurityContext != nil {
 		chiaSecContext = node.Spec.ChiaConfig.SecurityContext
@@ -380,7 +377,7 @@ func (r *ChiaNodeReconciler) reconcileStatefulset(ctx context.Context, rec recon
 
 	// TODO add pod affinity, tolerations
 
-	return rec.ReconcileResource(&stateful, reconciler.StatePresent)
+	return stateful
 }
 
 // getChiaVolumes retrieves the requisite volumes from the Chia config struct

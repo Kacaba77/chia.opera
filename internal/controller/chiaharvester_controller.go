@@ -64,7 +64,8 @@ func (r *ChiaHarvesterReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 
 	// Reconcile ChiaHarvester owned objects
-	res, err := r.reconcileBaseService(ctx, resourceReconciler, harvester)
+	srv := r.assembleBaseService(ctx, harvester)
+	res, err := reconcileService(ctx, resourceReconciler, srv)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -72,7 +73,8 @@ func (r *ChiaHarvesterReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		return *res, fmt.Errorf("ChiaHarvesterReconciler ChiaHarvester=%s encountered error reconciling harvester Service: %v", req.NamespacedName, err)
 	}
 
-	res, err = r.reconcileChiaExporterService(ctx, resourceReconciler, harvester)
+	srv = r.assembleChiaExporterService(ctx, harvester)
+	res, err = reconcileService(ctx, resourceReconciler, srv)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -80,7 +82,8 @@ func (r *ChiaHarvesterReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		return *res, fmt.Errorf("ChiaHarvesterReconciler ChiaHarvester=%s encountered error reconciling harvester chia-exporter Service: %v", req.NamespacedName, err)
 	}
 
-	res, err = r.reconcileDeployment(ctx, resourceReconciler, harvester)
+	deploy := r.assembleDeployment(ctx, harvester)
+	res, err = reconcileDeployment(ctx, resourceReconciler, deploy)
 	if err != nil {
 		if res == nil {
 			res = &reconcile.Result{}
@@ -106,9 +109,9 @@ func (r *ChiaHarvesterReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-// reconcileBaseService reconciles the main Service resource for a ChiaHarvester CR
-func (r *ChiaHarvesterReconciler) reconcileBaseService(ctx context.Context, rec reconciler.ResourceReconciler, harvester k8schianetv1.ChiaHarvester) (*reconcile.Result, error) {
-	var service corev1.Service = corev1.Service{
+// assembleBaseService reconciles the main Service resource for a ChiaHarvester CR
+func (r *ChiaHarvesterReconciler) assembleBaseService(ctx context.Context, harvester k8schianetv1.ChiaHarvester) corev1.Service {
+	return corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-harvester", harvester.Name),
 			Namespace:       harvester.Namespace,
@@ -141,13 +144,11 @@ func (r *ChiaHarvesterReconciler) reconcileBaseService(ctx context.Context, rec 
 			Selector: r.getCommonLabels(ctx, harvester, harvester.Spec.AdditionalMetadata.Labels),
 		},
 	}
-
-	return rec.ReconcileResource(&service, reconciler.StatePresent)
 }
 
-// reconcileChiaExporterService reconciles the chia-exporter Service resource for a ChiaHarvester CR
-func (r *ChiaHarvesterReconciler) reconcileChiaExporterService(ctx context.Context, rec reconciler.ResourceReconciler, harvester k8schianetv1.ChiaHarvester) (*reconcile.Result, error) {
-	var service corev1.Service = corev1.Service{
+// assembleChiaExporterService assembles the chia-exporter Service resource for a ChiaHarvester CR
+func (r *ChiaHarvesterReconciler) assembleChiaExporterService(ctx context.Context, harvester k8schianetv1.ChiaHarvester) corev1.Service {
+	return corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            fmt.Sprintf("%s-harvester-metrics", harvester.Name),
 			Namespace:       harvester.Namespace,
@@ -168,12 +169,10 @@ func (r *ChiaHarvesterReconciler) reconcileChiaExporterService(ctx context.Conte
 			Selector: r.getCommonLabels(ctx, harvester, harvester.Spec.AdditionalMetadata.Labels),
 		},
 	}
-
-	return rec.ReconcileResource(&service, reconciler.StatePresent)
 }
 
-// reconcileDeployment reconciles the harvester Deployment resource for a ChiaHarvester CR
-func (r *ChiaHarvesterReconciler) reconcileDeployment(ctx context.Context, rec reconciler.ResourceReconciler, harvester k8schianetv1.ChiaHarvester) (*reconcile.Result, error) {
+// assembleDeployment assembles the harvester Deployment resource for a ChiaHarvester CR
+func (r *ChiaHarvesterReconciler) assembleDeployment(ctx context.Context, harvester k8schianetv1.ChiaHarvester) appsv1.Deployment {
 	var chiaSecContext *corev1.SecurityContext
 	if harvester.Spec.ChiaConfig.SecurityContext != nil {
 		chiaSecContext = harvester.Spec.ChiaConfig.SecurityContext
@@ -275,7 +274,7 @@ func (r *ChiaHarvesterReconciler) reconcileDeployment(ctx context.Context, rec r
 
 	// TODO add pod affinity, tolerations
 
-	return rec.ReconcileResource(&deploy, reconciler.StatePresent)
+	return deploy
 }
 
 // getChiaVolumes retrieves the requisite volumes from the Chia config struct
