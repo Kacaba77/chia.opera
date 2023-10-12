@@ -13,7 +13,7 @@ permissions:
 jobs:
   run:
     name: Run tests
-    runs-on: [k8s-internal]
+    runs-on: [k8s-public]
     container: golang:1
     env:
       GOFLAGS: "-buildvcs=false"
