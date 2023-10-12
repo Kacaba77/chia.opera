@@ -15,9 +15,11 @@ jobs:
     name: Run tests
     runs-on: [k8s-internal]
     container: golang:1
+    env:
+      GOFLAGS: "-buildvcs=false"
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
