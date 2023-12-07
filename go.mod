@@ -1,6 +1,6 @@
 module github.com/chia-network/chia-operator
 
-go 1.19
+go 1.20
 
 require (
 	github.com/cisco-open/operator-tools v0.33.0
