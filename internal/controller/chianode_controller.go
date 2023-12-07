@@ -116,7 +116,7 @@ func (r *ChiaNodeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	node.Status.Ready = true
 	err = r.Status().Update(ctx, &node)
 	if err != nil {
-		log.Error(err, fmt.Sprintf("ChiaNodeReconciler ChiaCA=%s unable to update ChiaNode status", req.NamespacedName))
+		log.Error(err, fmt.Sprintf("ChiaNodeReconciler ChiaNode=%s unable to update ChiaNode status", req.NamespacedName))
 		return ctrl.Result{}, err
 	}
 

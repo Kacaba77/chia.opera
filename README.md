@@ -8,6 +8,7 @@ Kubernetes operator for managing Chia components in kubernetes. Currently suppor
  - farmers
  - harvesters
  - wallets
+ - timelords
 
 Applying a CR for each component allows you to instantiate a configured instance of that component that is able to communicate to other requisite components in the cluster. A whole farm can be ran with each component isolated in its own pod, with a chia-exporter sidecar to scrape Prometheus metrics.
 
