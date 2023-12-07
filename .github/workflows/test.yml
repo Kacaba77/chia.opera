@@ -1,4 +1,4 @@
-name: Run test
+name: Run test and non-trunk build
 
 on:
   push:
@@ -14,6 +14,7 @@ jobs:
   run:
     name: Run tests
     runs-on: [k8s-public]
+    timeout-minutes: 10
     container: golang:1
     env:
       GOFLAGS: "-buildvcs=false"
@@ -26,3 +27,56 @@ jobs:
       - name: Lint/test
         run: |
           make test
+
+  build-controller:
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Container
+        run: |
+          docker build -t test .
+
+  build-ca-gen:
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Container
+        run: |
+          docker build -t test ./chiaca-generator/
+
+  test-controller-gen-ran:
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 10
+    container: golang:1
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for git diffs
+        shell: bash
+        run: |
+          git config --global --add safe.directory /__w/chia-operator/chia-operator
+          git diff
+
+      - name: Make manifests
+        run: make manifests
+
+      - name: Check for git diffs
+        shell: bash
+        run: |
+          git config --global --add safe.directory /__w/chia-operator/chia-operator
+          git diff
+          diff=$(git diff-index HEAD --)
+          dirs=(api config hack internal)
+          for dir in "${dirs[@]}"; do
+            if [[ "$diff" != *"${dir}"* ]]; then
+              echo "No uncommitted changes in .${dir}/"
+            else
+              echo "Uncommitted changes found .${dir}/ -- This may indicate that you made changes to the controller API but did not run \"make manifests\" before committing. Please see DEVELOPMENT.md"
+              echo "${diff}"
+              exit 1
+            fi
+          done
