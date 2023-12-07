@@ -5,8 +5,12 @@ metadata:
     app.kubernetes.io/name: chiatimelord
     app.kubernetes.io/instance: chiatimelord-sample
     app.kubernetes.io/part-of: chia-operator
-    app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: chia-operator
   name: chiatimelord-sample
 spec:
-  # TODO(user): Add fields here
+  chia:
+    caSecretName: chiaca-secret
+    testnet: true
+    timezone: "UTC"
+    logLevel: "INFO"
+    fullNodePeer: "chianode-sample-node.chiaca.svc.cluster.local:58444"
